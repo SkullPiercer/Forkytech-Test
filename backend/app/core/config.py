@@ -1,15 +1,13 @@
-from os import getenv
-
-from dotenv import load_dotenv
-
-load_dotenv()
+from pydantic_settings import BaseSettings
+from pydantic import Extra
 
 
-class Settings:
-    email = getenv("EMAIL")
-    api_v2_key = getenv("API_V2_KEY")
-    branch = getenv("BRANCH")
-    database_url = getenv("DATABASE_URL")
+class Settings(BaseSettings):
+    app_title: str = "Бронирование переговорок"
+
+    class Config:
+        env_file = ".env"
+        extra = Extra.allow
 
 
 settings = Settings()
