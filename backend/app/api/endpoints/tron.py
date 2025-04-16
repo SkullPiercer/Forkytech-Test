@@ -1,20 +1,38 @@
-from fastapi import APIRouter
-from fastapi.params import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Union
 
-from app.core.db import get_async_session
+from tronpy import Tron
+from fastapi import APIRouter
+from app.schemas.tron import TronAddressRequest
+from app.schemas.dto import FailedResponse, SuccessResponse
 
 router = APIRouter()
 
 
 @router.post(
     "/",
-    # response_model=,
+    response_model=Union[SuccessResponse, FailedResponse],
     response_model_exclude_none=True,
     response_model_exclude_unset=True,
 )
 async def create_new_donation(
-    # donation: DonationCreate,
-    session: AsyncSession = Depends(get_async_session),
+    address: TronAddressRequest,
 ):
-    return 123
+    try:
+
+        client = Tron()
+        address = address.address
+        # balance = client.get_account_balance(address)
+        bandwidth = client.get_bandwidth(address)
+        # get_estimated_energy
+        data = {
+            # "balance": balance,
+            "bandwidth_usage": bandwidth,
+            # "energy_usage": energy,
+            # "bandwidth_limit": bandwidth_limit,
+            # "energy_limit": energy_limit,
+        }
+
+        return SuccessResponse(status=True, data=data)
+
+    except Exception as e:
+        return FailedResponse(status=False, data={None}, message=str(e))
