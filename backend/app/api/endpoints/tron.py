@@ -1,18 +1,17 @@
-from typing import Union
-
 from tronpy import Tron
 from tronpy.providers.http import HTTPProvider
 
 from fastapi import APIRouter
 from app.schemas.tron import TronAddressRequest
 from app.schemas.dto import FailedResponse, SuccessResponse
+from app.core.config import settings
 
 router = APIRouter()
 
 
 @router.post(
     "/",
-    response_model=Union[SuccessResponse, FailedResponse],
+    response_model=SuccessResponse | FailedResponse,
     response_model_exclude_none=True,
     response_model_exclude_unset=True,
 )
@@ -20,12 +19,13 @@ async def create_new_donation(
     address: TronAddressRequest,
 ):
     try:
-
-        client = Tron(
-            provider=HTTPProvider(
-                api_key="ade25cd0-3a2c-40a3-8322-9cc4d2ad3cfc"
+        if not settings.api_key:
+            return FailedResponse(
+                status=False,
+                data={None},
+                message="Укажите api_ket в env файле",
             )
-        )
+        client = Tron(provider=HTTPProvider(api_key=settings.api_key))
         address = address.address
         balance = client.get_account_balance(address)
         bandwidth = client.get_bandwidth(address)
