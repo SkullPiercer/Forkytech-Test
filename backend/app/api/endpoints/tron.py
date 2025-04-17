@@ -21,6 +21,7 @@ router = APIRouter()
 )
 async def get_wallet_info(
     address: TronAddressRequest,
+    session: AsyncSession = Depends(get_async_session),
 ):
     try:
         if not settings.api_key:
@@ -38,10 +39,12 @@ async def get_wallet_info(
             "EnergyLimit", 0
         ) - resource_info.get("EnergyUsed", 0)
         data = {
+            "wallet_address": address,
             "balance": balance,
             "bandwidth": bandwidth,
-            "energy": energy_remaining,
+            "energy_remaining": energy_remaining,
         }
+        await tron_crud.create(obj_in=data, session=session)
 
         return SuccessResponse(status=True, data=data)
 
