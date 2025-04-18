@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
 import re
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class TronAddressRequest(BaseModel):
@@ -13,3 +15,13 @@ class TronAddressRequest(BaseModel):
         if not re.match(r"^T[a-zA-Z0-9]{33}$", v):
             raise ValueError("Некорректный Tron-адрес")
         return v
+
+
+class TronRequestSchema(BaseModel):
+    id: int
+    balance: float
+    bandwidth: int
+    energy_remaining: int
+    requested_at: datetime
+
+    model_config = {"from_attributes": True}
